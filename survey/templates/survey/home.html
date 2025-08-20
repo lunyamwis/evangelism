@@ -1,0 +1,1172 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>📖 SDA Evangelism & Medical Missionary Survey App</title>
+
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+  /* Reset and base */
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+  html, body {
+    margin: 0; padding: 0;
+    height: 100%;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #dbe9f4, #a2c5f9);
+    color: #113366;
+  }
+  body {
+    display: grid;
+    grid-template-columns: 200px 1fr 360px;
+    grid-template-rows: 60px 1fr 100px;
+    grid-template-areas:
+      "sidebar header header"
+      "sidebar main assistant"
+      "sidebar footer footer";
+    height: 100vh;
+    gap: 6px;
+  }
+  a {
+    color: #114488;
+    text-decoration: none;
+  }
+  a:hover, a:focus {
+    text-decoration: underline;
+  }
+
+  /* Sidebar navigation */
+  nav#sidebar {
+    grid-area: sidebar;
+    background-color: #133366;
+    color: #d0e0ff;
+    display: flex;
+    flex-direction: column;
+    padding: 12px 0;
+    box-shadow: inset 2px 0 12px #0a2045cc;
+  }
+  nav#sidebar button {
+    background: transparent;
+    color: #a8bce2;
+    border: none;
+    padding: 14px 20px;
+    text-align: left;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    user-select: none;
+    width: 100%;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+  nav#sidebar button:hover, nav#sidebar button:focus {
+    background-color: #2a4d90;
+    color: white;
+    outline: none;
+  }
+  nav#sidebar button.active {
+    background-color: #3a5bb8;
+    color: white;
+  }
+
+  /* Header */
+  header#header {
+    grid-area: header;
+    background: linear-gradient(90deg, #2e4a95, #18306b);
+    color: white;
+    font-size: 1.3rem;
+    font-weight: 900;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    user-select: none;
+  }
+  header#header button {
+    background-color: #d9534f;
+    border-radius: 6px;
+    border: none;
+    color: white;
+    padding: 8px 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.25s ease;
+  }
+  header#header button:hover {
+    background-color: #b3403a;
+  }
+
+
+  /* Footer */
+  footer#footer {
+    grid-area: footer;
+    background-color: #2e4a95cc;
+    color: white;
+    font-weight: 700;
+    font-size: 0.9rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    user-select: none;
+    box-shadow: 0 -1px 10px #003366cc inset;
+  }
+
+  /* Main content */
+  main#main {
+    grid-area: main;
+    background: white;
+    border-radius: 16px;
+    padding: 18px 28px;
+    overflow-y: auto;
+    box-shadow: inset 0 0 12px #a0bee8cc;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* AI Assistant panel */
+  aside#assistant {
+    grid-area: assistant;
+    background: #cfe3ffcc;
+    border-left: 3px solid #2a59b9;
+    padding: 12px 18px;
+    font-family: monospace;
+    font-size: 0.9rem;
+    color: #112a66;
+    display: flex;
+    flex-direction: column;
+  }
+  #assistantHeader {
+    font-weight: 700;
+    color: #222f5a;
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+    user-select: none;
+  }
+  #chatWindow {
+    flex-grow: 1;
+    overflow-y: auto;
+    background: white;
+    border-radius: 14px;
+    border: 2px solid #94aede;
+    padding: 12px 16px;
+  }
+  .chat-message {
+    margin-bottom: 14px;
+    max-width: 85%;
+    word-wrap: break-word;
+    white-space: pre-wrap;
+    border-radius: 22px;
+    padding: 10px 14px;
+    line-height: 1.3;
+  }
+  .chat-message.user {
+    background: #a2bbf5cc;
+    color: #13316b;
+    align-self: flex-end;
+  }
+  .chat-message.ai {
+    background: #d7ddffcc;
+    color: #11255e;
+    align-self: flex-start;
+  }
+  #inputArea {
+    margin-top: 12px;
+    display: flex;
+    gap: 0.4rem;
+  }
+  #userInput {
+    flex-grow: 1;
+    border-radius: 24px;
+    border: 2px solid #2a59b9;
+    padding: 8px 14px;
+    font-weight: 600;
+    font-family: inherit;
+  }
+  #sendBtn, #voiceToggleBtn {
+    width: 44px; height: 44px;
+    font-size: 1.3rem;
+    font-weight: 700;
+    border-radius: 50%;
+    background-color: #2a59b9;
+    border: none;
+    color: white;
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.3s ease;
+  }
+  #sendBtn:hover, #voiceToggleBtn:hover,
+  #sendBtn:focus, #voiceToggleBtn:focus {
+    background-color: #193a73;
+    outline: none;
+  }
+
+  /* Sections and forms */
+  h2 {
+    color: #1a3167;
+    margin-bottom: 12px;
+    user-select: none;
+  }
+  label {
+    font-weight: 700;
+    margin-top: 12px;
+    display: block;
+  }
+  input[type="text"], input[type="email"], input[type="number"], input[type="date"], select, textarea {
+    width: 100%;
+    border-radius: 10px;
+    border: 1.7px solid #84a4e0;
+    padding: 8px 10px;
+    font-weight: 600;
+    font-family: inherit;
+    font-size: 1rem;
+    box-shadow: inset 0 0 8px #a9c3f1cc;
+    transition: border-color 0.3s ease;
+  }
+  input[type="text"]:focus, input[type="email"]:focus, input[type="number"]:focus, input[type="date"]:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: #254e95;
+    box-shadow: 0 0 12px #254e95aa;
+  }
+  textarea {
+    resize: vertical;
+    font-style: italic;
+  }
+
+  button.btn-primary {
+    margin-top: 14px;
+    background-color: #2a59b9;
+    padding: 0.6rem 1.4rem;
+    font-weight: 700;
+  }
+  button.btn-primary:hover, button.btn-primary:focus {
+    background-color: #1a377b;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: monospace;
+  }
+  th, td {
+    padding: 0.5rem 0.8rem;
+    border: 1.1px solid #aac3f2;
+    text-align: left;
+  }
+  th {
+    background-color: #b3c4f4;
+    color: #143269;
+    font-weight: 900;
+  }
+  tbody tr:nth-child(even) {
+    background-color: #e5ecffcc;
+  }
+  tbody tr:hover {
+    background-color: #d7deffcc;
+  }
+
+  /* Survey specific styles */
+  #surveyBuilder, #surveyList, #surveyResponses {
+    margin-top: 20px;
+  }
+  .survey-question {
+    margin: 16px 0;
+    padding: 16px;
+    background-color: #dde7ffcc;
+    border-radius: 12px;
+  }
+  .survey-question label {
+    font-weight: 700;
+    margin-bottom: 8px;
+    display: block;
+  }
+  .survey-options {
+    margin-left: 16px;
+    margin-top: 8px;
+  }
+  .option-input {
+    margin-right: 6px;
+    vertical-align: middle;
+  }
+  .survey-response {
+    margin-top: 14px;
+    padding: 8px 14px;
+    background: #f0f6ff;
+    border-radius: 12px;
+    font-style: italic;
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 1000px) {
+    body {
+      grid-template-columns: 180px 1fr;
+      grid-template-rows: 60px 1fr 100px;
+      grid-template-areas:
+        "sidebar header"
+        "sidebar main"
+        "sidebar footer";
+    }
+    aside#assistant {
+      display: none;
+    }
+  }
+  @media (max-width: 600px) {
+    body {
+      grid-template-columns: 1fr;
+      grid-template-rows: 56px 1fr 100px;
+      grid-template-areas:
+        "header"
+        "main"
+        "footer";
+    }
+    nav#sidebar {
+      flex-direction: row;
+      justify-content: space-around;
+      padding: 0.3rem 1rem;
+      box-shadow: none;
+    }
+    nav#sidebar button {
+      width: auto;
+      margin: 0;
+      font-size: 0.9rem;
+      border-radius: 30px;
+      padding: 0.4rem 1rem;
+    }
+  }
+</style>
+</head>
+<body>
+
+<nav id="sidebar" role="navigation" aria-label="Main navigation" tabindex="0" aria-live="polite">
+  <button class="tab-btn active" id="tab-bibleWork" aria-selected="true" role="tab" aria-label="Bible Work & Evangelism">
+    📖 Bible Work
+  </button>
+  <button class="tab-btn" id="tab-medicalMissions" aria-selected="false" role="tab" aria-label="Medical Missionary Services">
+    🏥 Medical Missions
+  </button>
+  <button class="tab-btn" id="tab-contacts" aria-selected="false" role="tab" aria-label="Contacts & Volunteers">
+    👥 Contacts
+  </button>
+  <button class="tab-btn" id="tab-surveys" aria-selected="false" role="tab" aria-label="Surveys">
+    📝 Surveys
+  </button>
+  <button class="tab-btn" id="tab-reports" aria-selected="false" role="tab" aria-label="Reports & Analytics">
+    📊 Reports
+  </button>
+  <button class="tab-btn" id="tab-settings" aria-selected="false" role="tab" aria-label="Settings & Preferences">
+    ⚙️ Settings
+  </button>
+</nav>
+
+<header id="header" role="banner">
+  📖 SDA Evangelism & Medical Missionary Survey App
+  <button id="btnResetApp" aria-label="Reset application data" title="Reset all data">Reset App</button>
+</header>
+
+<main id="main" role="main" tabindex="0" aria-live="polite">
+
+  <!-- Bible Work Tab -->
+  <section id="panel-bibleWork" class="panel active" role="tabpanel" aria-labelledby="tab-bibleWork" tabindex="0">
+    <h2>Bible Work & Evangelism Dashboard</h2>
+    <p>Manage Bible study schedules, material sharing, and team outreach.</p>
+    <!-- Placeholder content -->
+  </section>
+
+  <!-- Medical Missions Tab -->
+  <section id="panel-medicalMissions" class="panel" role="tabpanel" aria-labelledby="tab-medicalMissions" tabindex="0" hidden>
+    <h2>Medical Missionary Services Dashboard</h2>
+    <p>Coordinate mobile clinics, patient tracking, and health education.</p>
+    <!-- Placeholder content -->
+  </section>
+
+  <!-- Contacts Tab -->
+  <section id="panel-contacts" class="panel" role="tabpanel" aria-labelledby="tab-contacts" tabindex="0" hidden>
+    <h2>Contacts & Volunteer Management</h2>
+    <p>Manage all volunteers, seekers, and members connected to the mission.</p>
+    <!-- Placeholder content -->
+  </section>
+
+  <!-- Surveys Tab -->
+  <section id="panel-surveys" class="panel" role="tabpanel" aria-labelledby="tab-surveys" tabindex="0" hidden>
+    <h2>Surveys & Feedback Collection</h2>
+    
+    <div id="surveyBuilder">
+      <h3>Create a New Survey</h3>
+      <form id="formCreateSurvey">
+        <label for="surveyTitle">Survey Title</label>
+        <input type="text" id="surveyTitle" maxlength="100" placeholder="e.g. Health Outreach Feedback" required />
+        
+        <div id="questionsContainer">
+          <p><em>Add questions below</em></p>
+        </div>
+
+        <button type="button" id="btnAddTextQuestion">Add Text Question</button>
+        <button type="button" id="btnAddMultipleChoiceQuestion">Add Multiple Choice Question</button>
+        <button type="button" id="btnAddRatingQuestion">Add Rating Question (1-5)</button>
+        <br/><br/>
+        <button type="submit" class="btn-primary">Save Survey</button>
+      </form>
+    </div>
+
+    <hr/>
+
+    <div id="surveyList">
+      <h3>Existing Surveys</h3>
+      <select id="selectSurveys" aria-label="Select a survey"></select>
+      <button id="btnTakeSurvey" disabled>Take Selected Survey</button>
+      <button id="btnViewResults" disabled>View Survey Results</button>
+    </div>
+
+    <hr/>
+
+    <div id="surveyResponses" aria-live="polite" style="margin-top:16px;">
+
+    </div>
+  </section>
+
+  <!-- Reports Tab -->
+  <section id="panel-reports" class="panel" role="tabpanel" aria-labelledby="tab-reports" tabindex="0" hidden>
+    <h2>Reports & Analytics</h2>
+    <p>Data visualization and export for outreach and survey results.</p>
+    <!-- Placeholder content -->
+  </section>
+
+  <!-- Settings Tab -->
+  <section id="panel-settings" class="panel" role="tabpanel" aria-labelledby="tab-settings" tabindex="0" hidden>
+    <h2>Settings & Preferences</h2>
+    <p>Configure app preferences and user roles.</p>
+    <!-- Placeholder content -->
+  </section>
+
+</main>
+
+<!-- AI Assistant panel -->
+<aside id="assistant" role="complementary" aria-label="AI assistant chat" tabindex="0">
+  <div id="assistantHeader" tabindex="0" aria-live="polite" aria-atomic="true">🤖 AI Assistant</div>
+  <div id="chatWindow" role="log" aria-live="polite" aria-atomic="false" aria-relevant="additions" tabindex="0" aria-label="Conversation"></div>
+  <div id="inputArea">
+    <input type="text" id="userInput" aria-label="Type a message to AI assistant" autocomplete="off" spellcheck="false" placeholder="Ask me about outreach or health missions..." />
+    <button id="sendBtn" aria-label="Send message to assistant">➤</button>
+    <button id="voiceToggleBtn" aria-label="Toggle voice input">🎙️</button>
+  </div>
+</aside>
+
+<footer id="footer" role="contentinfo">
+  © 2025 SDA Evangelism & Medical Missionary Survey App
+</footer>
+
+<script>
+(() => {
+  'use strict';
+
+  // DOM references
+  const tabs = [...document.querySelectorAll('nav#sidebar button.tab-btn')];
+  const panels = [...document.querySelectorAll('main#main section.panel')];
+  const surveyForm = document.getElementById('formCreateSurvey');
+  const surveyTitleInput = document.getElementById('surveyTitle');
+  const questionsContainer = document.getElementById('questionsContainer');
+  const btnAddTextQ = document.getElementById('btnAddTextQuestion');
+  const btnAddMCQ = document.getElementById('btnAddMultipleChoiceQuestion');
+  const btnAddRatingQ = document.getElementById('btnAddRatingQuestion');
+  const selectSurveys = document.getElementById('selectSurveys');
+  const btnTakeSurvey = document.getElementById('btnTakeSurvey');
+  const btnViewResults = document.getElementById('btnViewResults');
+  const surveyResponsesDiv = document.getElementById('surveyResponses');
+  const btnResetApp = document.getElementById('btnResetApp');
+
+  // AI Assistant related
+  const chatWindow = document.getElementById('chatWindow');
+  const userInput = document.getElementById('userInput');
+  const sendBtn = document.getElementById('sendBtn');
+  const voiceToggleBtn = document.getElementById('voiceToggleBtn');
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition || null;
+  let recognizer = null;
+  let voiceActive = false;
+
+  // State data
+  let surveys = [];
+  let surveyResponses = [];
+
+  // Helper to generate unique ID
+  function generateId() {
+    return 'id_' + Math.random().toString(36).slice(2, 10);
+  }
+
+  // Load from localStorage
+  function loadData(){
+    try {
+      surveys = JSON.parse(localStorage.getItem('evangelism_surveys')) || [];
+      surveyResponses = JSON.parse(localStorage.getItem('evangelism_surveyResponses')) || [];
+    } catch(e){
+      surveys = [];
+      surveyResponses = [];
+    }
+  }
+  function saveData(){
+    localStorage.setItem('evangelism_surveys', JSON.stringify(surveys));
+    localStorage.setItem('evangelism_surveyResponses', JSON.stringify(surveyResponses));
+  }
+
+  // Render current surveys dropdown
+  function renderSurveyList(){
+    selectSurveys.innerHTML = '';
+    surveys.forEach(s => {
+      const opt = document.createElement('option');
+      opt.value = s.id;
+      opt.textContent = s.title;
+      selectSurveys.appendChild(opt);
+    });
+    updateSurveyButtons();
+  }
+
+  // Enable/disable survey buttons
+  function updateSurveyButtons(){
+    const hasSurvey = selectSurveys.options.length > 0;
+    btnTakeSurvey.disabled = !hasSurvey;
+    btnViewResults.disabled = !hasSurvey;
+  }
+
+  // Create a question block UI for builder
+  function createQuestionBlock(type, questionData = {}){
+    const questionDiv = document.createElement('div');
+    questionDiv.className = 'survey-question';
+    questionDiv.dataset.type = type;
+
+    const id = generateId();
+
+    const labelInput = document.createElement('input');
+    labelInput.type = 'text';
+    labelInput.placeholder = 'Enter question text';
+    labelInput.value = questionData.question || '';
+    labelInput.required = true;
+    labelInput.style.width = '100%';
+    labelInput.style.fontWeight = '700';
+    labelInput.style.fontSize = '1rem';
+    labelInput.style.marginBottom = '8px';
+
+    // Remove question button
+    const btnRemove = document.createElement('button');
+    btnRemove.type = 'button';
+    btnRemove.textContent = 'Remove Question';
+    btnRemove.style.backgroundColor = '#cc5555';
+    btnRemove.style.color = 'white';
+    btnRemove.style.borderRadius = '8px';
+    btnRemove.style.padding = '6px 14px';
+    btnRemove.style.fontWeight = '700';
+    btnRemove.style.marginTop = '8px';
+    btnRemove.style.cursor = 'pointer';
+    btnRemove.addEventListener('click', () => questionDiv.remove());
+
+    questionDiv.appendChild(labelInput);
+
+    if(type === 'text'){
+      const textarea = document.createElement('textarea');
+      textarea.rows = 2;
+      textarea.placeholder = 'Users will write their answer here';
+      textarea.readOnly = true;
+      textarea.style.width = '100%';
+      textarea.style.marginTop = '6px';
+      questionDiv.appendChild(textarea);
+    }
+    else if(type === 'multipleChoice'){
+      // Options container
+      const optionsDiv = document.createElement('div');
+      optionsDiv.className = 'survey-options';
+      optionsDiv.style.marginTop = '6px';
+
+      // Button to add option
+      const btnAddOption = document.createElement('button');
+      btnAddOption.type = 'button';
+      btnAddOption.textContent = 'Add Option';
+      btnAddOption.className = 'btn-primary';
+      btnAddOption.style.marginTop = '10px';
+
+      btnAddOption.addEventListener('click', () => {
+        addOptionField();
+      });
+
+      function addOptionField(optionText = ''){
+        const optionWrapper = document.createElement('div');
+        optionWrapper.style.marginBottom = '8px';
+
+        const optionInput = document.createElement('input');
+        optionInput.type = 'text';
+        optionInput.placeholder = 'Option text';
+        optionInput.value = optionText;
+        optionInput.required = true;
+        optionInput.style.width = '85%';
+
+        const btnDelOption = document.createElement('button');
+        btnDelOption.type = 'button';
+        btnDelOption.textContent = '✖';
+        btnDelOption.title = 'Remove this option';
+        btnDelOption.style.marginLeft = '10px';
+        btnDelOption.style.cursor = 'pointer';
+        btnDelOption.style.backgroundColor = '#cc4444';
+        btnDelOption.style.color = 'white';
+        btnDelOption.style.borderRadius = '50%';
+        btnDelOption.style.fontWeight = '900';
+        btnDelOption.style.padding = '0 6px';
+
+        btnDelOption.addEventListener('click', () => {
+          optionWrapper.remove();
+        });
+
+        optionWrapper.appendChild(optionInput);
+        optionWrapper.appendChild(btnDelOption);
+        optionsDiv.appendChild(optionWrapper);
+        optionInput.focus();
+      }
+
+      if(questionData.options && questionData.options.length){
+        questionData.options.forEach(opt=>addOptionField(opt));
+      }
+      else{
+        addOptionField();
+        addOptionField();
+      }
+
+      questionDiv.appendChild(optionsDiv);
+      questionDiv.appendChild(btnAddOption);
+    }
+    else if(type === 'rating'){
+      // Rating scale is 1 to 5 by default
+
+      const ratingDiv = document.createElement('div');
+      ratingDiv.className = 'survey-options';
+      ratingDiv.style.marginTop = '8px';
+
+      for(let i=1; i<=5; i++){
+        const label = document.createElement('label');
+        label.style.marginRight = '14px';
+
+        const input = document.createElement('input');
+        input.type = 'radio';
+        input.name = id;
+        input.value = i;
+        input.disabled = true;
+        if(questionData.rating === i) input.checked = true;
+
+        label.appendChild(input);
+        label.append(` ${i} `);
+        ratingDiv.appendChild(label);
+      }
+
+      questionDiv.appendChild(ratingDiv);
+    }
+
+    questionDiv.appendChild(btnRemove);
+    questionsContainer.appendChild(questionDiv);
+  }
+
+  // Add question button handlers
+  btnAddTextQ.addEventListener('click', () => createQuestionBlock('text'));
+  btnAddMCQ.addEventListener('click', () => createQuestionBlock('multipleChoice'));
+  btnAddRatingQ.addEventListener('click', () => createQuestionBlock('rating'));
+
+  // Save survey form submission
+  surveyForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const title = surveyTitleInput.value.trim();
+    if(!title){
+      alert('Please enter a survey title.');
+      return;
+    }
+    const questionElems = [...questionsContainer.querySelectorAll('.survey-question')];
+    if(questionElems.length === 0){
+      alert('Add at least one question.');
+      return;
+    }
+    const questions = [];
+    for(const qElem of questionElems){
+      const type = qElem.dataset.type;
+      const questionText = qElem.querySelector('input[type="text"]').value.trim();
+      if(!questionText){
+        alert('All questions must have text.');
+        return;
+      }
+      if(type === 'text'){
+        questions.push({type: 'text', question: questionText});
+      }
+      else if(type === 'multipleChoice'){
+        const optionsInputs = qElem.querySelectorAll('.survey-options input[type="text"]');
+        const options = [];
+        for(const oi of optionsInputs){
+          if(oi.value.trim() === ''){
+            alert('Multiple choice options cannot be empty.');
+            return;
+          }
+          options.push(oi.value.trim());
+        }
+        if(options.length < 2){
+          alert('Multiple choice questions need at least two options.');
+          return;
+        }
+        questions.push({type: 'multipleChoice', question: questionText, options});
+      }
+      else if(type === 'rating'){
+        questions.push({type: 'rating', question: questionText, rating: 0});
+      }
+    }
+    surveys.push({id: generateId(), title, questions});
+    saveData();
+    renderSurveyList();
+    alert('Survey saved!');
+    surveyForm.reset();
+    questionsContainer.innerHTML = `<p><em>Add questions below</em></p>`;
+  });
+
+  // Load surveys into select on page load
+  loadData();
+  renderSurveyList();
+
+  // Survey select change
+  selectSurveys.addEventListener('change', updateSurveyButtons);
+
+  // Take survey button opens survey-taking UI
+  btnTakeSurvey.addEventListener('click', () => {
+    const selectedId = selectSurveys.value;
+    if(!selectedId) return;
+    showSurveyTakingUI(selectedId);
+  });
+
+  // View survey results button opens results UI
+  btnViewResults.addEventListener('click', () => {
+    const selectedId = selectSurveys.value;
+    if(!selectedId) return;
+    showSurveyResultsUI(selectedId);
+  });
+
+  // Show survey-taking interface
+  function showSurveyTakingUI(surveyId){
+    const survey = surveys.find(s => s.id === surveyId);
+    if(!survey) return alert('Survey not found.');
+
+    // Clear responses div
+    surveyResponsesDiv.innerHTML = '';
+
+    const title = document.createElement('h3');
+    title.textContent = `Taking Survey: ${survey.title}`;
+    surveyResponsesDiv.appendChild(title);
+
+    const form = document.createElement('form');
+    form.id = 'surveyResponseForm';
+
+    survey.questions.forEach((q, idx) => {
+      const container = document.createElement('div');
+      container.className = 'survey-question';
+
+      const label = document.createElement('label');
+      label.textContent = `${idx + 1}. ${q.question}`;
+      container.appendChild(label);
+
+      if(q.type === 'text'){
+        const input = document.createElement('textarea');
+        input.name = 'q_' + idx;
+        input.required = true;
+        input.rows = 3;
+        container.appendChild(input);
+      }
+      else if(q.type === 'multipleChoice'){
+        q.options.forEach((opt, optIdx) => {
+          const optionLabel = document.createElement('label');
+          optionLabel.style.display = 'block';
+          optionLabel.style.marginLeft = '12px';
+          const radio = document.createElement('input');
+          radio.type = 'radio';
+          radio.name = 'q_' + idx;
+          radio.value = opt;
+          radio.required = true;
+          optionLabel.appendChild(radio);
+          optionLabel.appendChild(document.createTextNode(' ' + opt));
+          container.appendChild(optionLabel);
+        });
+      }
+      else if(q.type === 'rating'){
+        const ratingDiv = document.createElement('div');
+        for(let i = 1; i <= 5; i++){
+          const rbLabel = document.createElement('label');
+          rbLabel.style.marginRight = '14px';
+
+          const rbInput = document.createElement('input');
+          rbInput.type = 'radio';
+          rbInput.name = 'q_' + idx;
+          rbInput.value = i;
+          rbInput.required = true;
+
+          rbLabel.appendChild(rbInput);
+          rbLabel.appendChild(document.createTextNode(' ' + i));
+          ratingDiv.appendChild(rbLabel);
+        }
+        container.appendChild(ratingDiv);
+      }
+
+      form.appendChild(container);
+    });
+
+    const btnSubmit = document.createElement('button');
+    btnSubmit.type = 'submit';
+    btnSubmit.textContent = 'Submit Survey';
+    btnSubmit.className = 'btn-primary';
+    form.appendChild(btnSubmit);
+
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+      const formData = new FormData(form);
+      const answers = [];
+      survey.questions.forEach((q, idx) => {
+        answers.push(formData.get('q_' + idx));
+      });
+      surveyResponses.push({
+        surveyId: survey.id,
+        submittedAt: new Date().toISOString(),
+        answers
+      });
+      saveData();
+      alert('Thank you for completing the survey!');
+      surveyResponsesDiv.innerHTML = '';
+    });
+
+    surveyResponsesDiv.appendChild(form);
+  }
+
+  // Show survey results interface
+  function showSurveyResultsUI(surveyId){
+    const survey = surveys.find(s => s.id === surveyId);
+    if(!survey) return alert('Survey not found.');
+
+    const responses = surveyResponses.filter(r => r.surveyId === surveyId);
+
+    surveyResponsesDiv.innerHTML = '';
+    const title = document.createElement('h3');
+    title.textContent = `Survey Results: ${survey.title}`;
+    surveyResponsesDiv.appendChild(title);
+
+    if(responses.length === 0){
+      const p = document.createElement('p');
+      p.textContent = 'No responses submitted yet.';
+      surveyResponsesDiv.appendChild(p);
+      return;
+    }
+
+    // Show basic stats for each question
+    survey.questions.forEach((q, idx) => {
+      const questionDiv = document.createElement('div');
+      questionDiv.className = 'survey-question';
+
+      const label = document.createElement('label');
+      label.textContent = `${idx + 1}. ${q.question}`;
+      questionDiv.appendChild(label);
+
+      if(q.type === 'text'){
+        // List textual answers
+        responses.forEach(resp => {
+          const answerPara = document.createElement('div');
+          answerPara.className = 'survey-response';
+          answerPara.textContent = resp.answers[idx] || '[No Response]';
+          questionDiv.appendChild(answerPara);
+        });
+      }
+      else if(q.type === 'multipleChoice'){
+        // Count answers per option
+        const counts = {};
+        q.options.forEach(opt => counts[opt] = 0);
+        responses.forEach(resp => {
+          const ans = resp.answers[idx];
+          if(ans && counts.hasOwnProperty(ans)) counts[ans]++;
+        });
+
+        const canvas = document.createElement('canvas');
+        canvas.width = 400;
+        canvas.height = 250;
+        questionDiv.appendChild(canvas);
+
+        new Chart(canvas.getContext('2d'), {
+          type: 'bar',
+          data: {
+            labels: q.options,
+            datasets: [{
+              label: 'Responses',
+              data: q.options.map(opt => counts[opt]),
+              backgroundColor: 'rgba(42,89,185,0.7)',
+              borderColor: 'rgba(42,89,185,1)',
+              borderWidth: 1
+            }],
+          },
+          options: {
+            scales: { y: { beginAtZero: true, precision: 0 } },
+            responsive: false,
+            plugins: { legend: { display: false } }
+          }
+        });
+      }
+      else if(q.type === 'rating'){
+        // Average rating calculation
+        let sum = 0;
+        let count = 0;
+        responses.forEach(resp => {
+          const val = parseInt(resp.answers[idx],10);
+          if(!isNaN(val)){
+            sum += val;
+            count++;
+          }
+        });
+        const avg = count > 0 ? (sum / count).toFixed(2) : 'No responses';
+
+        const pAvg = document.createElement('p');
+        pAvg.textContent = `Average Rating: ${avg}`;
+        questionDiv.appendChild(pAvg);
+
+        // Bar showing count per rating 1-5
+        const counts = [0,0,0,0,0];
+        responses.forEach(resp => {
+          const val = parseInt(resp.answers[idx],10);
+          if(val >= 1 && val <= 5) counts[val-1]++;
+        });
+
+        const canvas = document.createElement('canvas');
+        canvas.width = 400;
+        canvas.height = 250;
+        questionDiv.appendChild(canvas);
+
+        new Chart(canvas.getContext('2d'), {
+          type: 'bar',
+          data: {
+            labels: ['1','2','3','4','5'],
+            datasets: [{
+              label: 'Ratings Count',
+              data: counts,
+              backgroundColor: 'rgba(42,89,185,0.7)',
+              borderColor: 'rgba(42,89,185,1)',
+              borderWidth: 1
+            }],
+          },
+          options: {
+            scales: { y: { beginAtZero: true, precision:0 }},
+            responsive: false,
+            plugins: { legend: { display: false } }
+          }
+        });
+      }
+
+      surveyResponsesDiv.appendChild(questionDiv);
+    });
+  }
+
+  // Navigation tab click handler
+  tabs.forEach(btn => {
+    btn.addEventListener('click', () => {
+      tabs.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const tabId = btn.id;
+      panels.forEach(p => {
+        p.classList.remove('active');
+        p.hidden = true;
+      });
+      const panel = document.getElementById('panel-' + tabId.replace('tab-', ''));
+      if(panel){
+        panel.classList.add('active');
+        panel.hidden = false;
+        panel.focus();
+      }
+      surveyResponsesDiv.innerHTML = '';
+      surveyTitleInput.value = '';
+      questionsContainer.innerHTML = '<p><em>Add questions below</em></p>';
+      updateSurveyButtons();
+    });
+  });
+
+  // AI assistant chat
+  sendBtn.addEventListener('click', sendAIMessage);
+  userInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendAIMessage();
+    }
+  });
+
+  if (SpeechRecognition) {
+    recognizer = new SpeechRecognition();
+    recognizer.lang = 'en-US';
+    recognizer.continuous = false;
+    recognizer.interimResults = false;
+    recognizer.addEventListener('result', e => {
+      const transcript = Array.from(e.results).map(r => r[0].transcript).join('');
+      userInput.value = transcript;
+      userInput.focus();
+    });
+    recognizer.addEventListener('end', () => {
+      if (voiceActive) recognizer.start();
+    });
+  } else {
+    voiceToggleBtn.disabled = true;
+    voiceToggleBtn.title = 'Speech Recognition not supported';
+  }
+
+  voiceToggleBtn.addEventListener('click', () => {
+    if (!recognizer) return;
+    if (voiceActive) {
+      recognizer.stop();
+      voiceActive = false;
+      voiceToggleBtn.textContent = '🎙️';
+    } else {
+      recognizer.start();
+      voiceActive = true;
+      voiceToggleBtn.textContent = '🛑';
+    }
+  });
+
+  function sendAIMessage() {
+    const txt = userInput.value.trim();
+    if(!txt) return;
+    appendChat('user', txt);
+    userInput.value = '';
+    respondToAI(txt);
+  }
+
+  function appendChat(sender, text){
+    const div = document.createElement('div');
+    div.className = 'chat-message ' + sender;
+    div.textContent = text;
+    chatWindow.appendChild(div);
+    chatWindow.scrollTop = chatWindow.scrollHeight;
+  }
+
+  async function respondToAI(message){
+    appendChat('ai', '...');
+    await delay(1200);
+
+    let reply = "I'm your mission assistant. You can ask about Bible work, medical missions, surveys, or app functionality.";
+
+    const msg = message.toLowerCase();
+    if(msg.includes('survey')) reply = "Create and take surveys on the 'Surveys' tab. Collect feedback from your contacts.";
+    else if(msg.includes('bible')) reply = "Manage Bible work schedules and study plans in the 'Bible Work' section.";
+    else if(msg.includes('medical')) reply = "Coordinate medical missionary activities under 'Medical Missions'.";
+    else if(msg.includes('help')) reply = "Ask me about creating surveys, managing contacts, or tracking outreach progress.";
+    else if(msg.includes('reset')) reply = "Use the red 'Reset App' button at the top to clear all data and start fresh.";
+
+    appendChat('ai', reply);
+  }
+
+  // Add question buttons functionality
+  btnAddTextQ.addEventListener('click', () => addQuestion('text'));
+  btnAddMCQ.addEventListener('click', () => addQuestion('multipleChoice'));
+  btnAddRatingQ.addEventListener('click', () => addQuestion('rating'));
+
+  function addQuestion(type){
+    if(questionsContainer.querySelector('p')) questionsContainer.innerHTML = '';
+    const div = document.createElement('div');
+    div.className = 'survey-question';
+    div.dataset.type = type;
+
+    const label = document.createElement('input');
+    label.type = 'text';
+    label.placeholder = 'Question text...';
+    label.required = true;
+    label.style.width = '100%';
+    label.style.fontWeight = '700';
+    label.style.fontSize = '1rem';
+    label.style.marginBottom = '8px';
+
+    div.appendChild(label);
+
+    if(type === 'multipleChoice'){
+      const optionsDiv = document.createElement('div');
+      optionsDiv.className = 'survey-options';
+      optionsDiv.style.marginTop = '6px';
+
+      function addOption(optText = '') {
+        const optWrapper = document.createElement('div');
+        optWrapper.style.marginBottom = '6px';
+
+        const optInput = document.createElement('input');
+        optInput.type = 'text';
+        optInput.placeholder = 'Option text';
+        optInput.value = optText;
+        optInput.required = true;
+        optInput.style.width = '85%';
+
+        const btnDel = document.createElement('button');
+        btnDel.type = 'button';
+        btnDel.textContent = '✖';
+        btnDel.style.marginLeft = '10px';
+        btnDel.style.cursor = 'pointer';
+        btnDel.style.backgroundColor = '#cc4444';
+        btnDel.style.color = 'white';
+        btnDel.style.borderRadius = '50%';
+        btnDel.style.fontWeight = '900';
+        btnDel.style.padding = '0 6px';
+
+        btnDel.addEventListener('click', () => optWrapper.remove());
+        optWrapper.appendChild(optInput);
+        optWrapper.appendChild(btnDel);
+        optionsDiv.appendChild(optWrapper);
+      }
+
+      addOption();
+      addOption();
+
+      const btnAddOpt = document.createElement('button');
+      btnAddOpt.type = 'button';
+      btnAddOpt.textContent = 'Add Option';
+      btnAddOpt.className = 'btn-primary';
+      btnAddOpt.style.marginTop = '10px';
+
+      btnAddOpt.addEventListener('click', () => addOption());
+
+      div.appendChild(optionsDiv);
+      div.appendChild(btnAddOpt);
+    }
+    else if(type === 'rating'){
+      const ratingDiv = document.createElement('div');
+      ratingDiv.className = 'survey-options';
+      ratingDiv.style.marginTop = '8px';
+
+      for(let i=1; i<=5; i++){
+        const label = document.createElement('label');
+        label.style.marginRight = '14px';
+        const input = document.createElement('input');
+        input.type = 'radio';
+        input.name = `rating_${generateId()}`;
+        input.value = i;
+        input.disabled = true;
+        label.appendChild(input);
+        label.append(' ' + i);
+        ratingDiv.appendChild(label);
+      }
+      div.appendChild(ratingDiv);
+    }
+
+    const btnRemove = document.createElement('button');
+    btnRemove.type = 'button';
+    btnRemove.textContent = 'Remove Question';
+    btnRemove.style.backgroundColor = '#cc5555';
+    btnRemove.style.color = 'white';
+    btnRemove.style.borderRadius = '8px';
+    btnRemove.style.padding = '6px 14px';
+    btnRemove.style.fontWeight = '700';
+    btnRemove.style.marginTop = '8px';
+    btnRemove.style.cursor = 'pointer';
+    btnRemove.addEventListener('click', () => div.remove());
+
+    div.appendChild(btnRemove);
+    questionsContainer.appendChild(div);
+  }
+
+  // Reset app button
+  btnResetApp.addEventListener('click', () => {
+    if(confirm('Reset all data? This action cannot be undone.')) {
+      localStorage.clear();
+      location.reload();
+    }
+  });
+
+})();
+</script>
+
+</body>
+</html>
