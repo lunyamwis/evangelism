@@ -1,0 +1,29 @@
+{% extends "biblework/base.html" %}
+{% block content %}
+<h1>Outreach Visit Logs</h1>
+
+<form method="post" class="mb-4">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit" class="btn btn-primary">Log Visit</button>
+</form>
+
+<table class="table table-striped">
+<thead>
+  <tr><th>Date of Visit</th><th>Location</th><th>Contact Person</th><th>Notes</th><th>Actions</th></tr>
+</thead>
+<tbody>
+  {% for visit in visits %}
+  <tr>
+    <td>{{ visit.date }}</td>
+    <td>{{ visit.address }}</td>
+    <td>{{ visit.contact_person }}</td>
+    <td>{{ visit.notes }}</td>
+    <td><!-- Edit/Delete buttons --></td>
+  </tr>
+  {% empty %}
+  <tr><td colspan="5" class="text-center">No visits logged yet.</td></tr>
+  {% endfor %}
+</tbody>
+</table>
+{% endblock %}

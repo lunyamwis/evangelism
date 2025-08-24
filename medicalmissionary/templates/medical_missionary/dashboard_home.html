@@ -1,0 +1,14 @@
+{% extends "medical_missionary/base.html" %}
+{% block content %}
+<h1>Medical Missionary Dashboard</h1>
+
+<ul class="list-group">
+  <li class="list-group-item"><a href="{% url 'clinic_schedule_list' %}">📅 Clinic Scheduling</a></li>
+  <li class="list-group-item"><a href="{% url 'patient_list' %}">👨⚕️ Patient Intake</a></li>
+  <li class="list-group-item"><a href="{% url 'volunteer_list' %}">👩⚕️ Volunteers</a></li>
+  <li class="list-group-item"><a href="{% url 'treatment_list' %}">💊 Treatments</a></li>
+  <li class="list-group-item"><a href="{% url 'inventory_list' %}">🔬 Inventory</a></li>
+  <li class="list-group-item"><a href="{% url 'health_education_list' %}">📖 Health Education</a></li>
+  <li class="list-group-item">📈 Reports (to be implemented)</li>
+</ul>
+{% endblock %}

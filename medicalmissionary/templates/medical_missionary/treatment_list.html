@@ -1,0 +1,28 @@
+{% extends "medical_missionary/base.html" %}
+{% block content %}
+<h1>Patient Treatments &amp; Prescriptions</h1>
+
+<form method="post" class="mb-4">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit" class="btn btn-primary">Add Treatment</button>
+</form>
+
+<table class="table table-striped">
+<thead>
+  <tr><th>Patient</th><th>Condition Diagnosed</th><th>Prescription Details</th><th>Actions</th></tr>
+</thead>
+<tbody>
+  {% for treatment in treatments %}
+  <tr>
+    <td>{{ treatment.patient.full_name }}</td>
+    <td>{{ treatment.condition_diagnosed }}</td>
+    <td>{{ treatment.prescription_details }}</td>
+    <td><!-- Actions --></td>
+  </tr>
+  {% empty %}
+  <tr><td colspan="4" class="text-center">No treatments recorded.</td></tr>
+  {% endfor %}
+</tbody>
+</table>
+{% endblock %}

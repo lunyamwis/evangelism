@@ -1,0 +1,28 @@
+{% extends "medical_missionary/base.html" %}
+{% block content %}
+<h1>Health Education Materials</h1>
+
+<form method="post" class="mb-4">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit" class="btn btn-primary">Add Material</button>
+</form>
+
+<table class="table table-striped">
+<thead>
+  <tr><th>Title</th><th>Description</th><th>Resource Link</th><th>Actions</th></tr>
+</thead>
+<tbody>
+  {% for material in materials %}
+  <tr>
+    <td>{{ material.title }}</td>
+    <td>{{ material.description }}</td>
+    <td>{% if material.resource_link %}<a href="{{ material.resource_link }}" target="_blank" rel="noopener">Link</a>{% endif %}</td>
+    <td><!-- Actions --></td>
+  </tr>
+  {% empty %}
+  <tr><td colspan="4" class="text-center">No materials available.</td></tr>
+  {% endfor %}
+</tbody>
+</table>
+{% endblock %}

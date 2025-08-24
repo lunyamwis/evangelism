@@ -1,0 +1,30 @@
+{% extends "medical_missionary/base.html" %}
+{% block content %}
+<h1>Patient Intake &amp; Health History</h1>
+
+<form method="post" class="mb-4">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit" class="btn btn-primary">Add Patient</button>
+</form>
+
+<table class="table table-striped">
+<thead>
+  <tr><th>Full Name</th><th>Date of Birth</th><th>Address</th><th>SDA Health</th><th>History</th><th>Actions</th></tr>
+</thead>
+<tbody>
+  {% for patient in patients %}
+  <tr>
+    <td>{{ patient.full_name }}</td>
+    <td>{{ patient.date_of_birth }}</td>
+    <td>{{ patient.address }}</td>
+    <td>{% if patient.sda_health_message_adherence %}Yes{% else %}No{% endif %}</td>
+    <td><!-- Link or summary of medical history --></td>
+    <td><!-- Actions --></td>
+  </tr>
+  {% empty %}
+  <tr><td colspan="6" class="text-center">No patients registered.</td></tr>
+  {% endfor %}
+</tbody>
+</table>
+{% endblock %}

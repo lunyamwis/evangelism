@@ -1,0 +1,30 @@
+{% extends "biblework/base.html" %}
+{% block content %}
+<h1>Bible Study Scheduling</h1>
+
+<form method="post" class="mb-4">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit" class="btn btn-primary">Add Study</button>
+</form>
+
+<table class="table table-striped">
+<thead>
+  <tr><th>Date</th><th>Time</th><th>Location</th><th>Topic</th><th>Notes</th><th>Actions</th></tr>
+</thead>
+<tbody>
+  {% for study in studies %}
+  <tr>
+    <td>{{ study.date }}</td>
+    <td>{{ study.time }}</td>
+    <td>{{ study.location }}</td>
+    <td>{{ study.topic }}</td>
+    <td>{{ study.notes }}</td>
+    <td><!-- Edit/Delete buttons --></td>
+  </tr>
+  {% empty %}
+  <tr><td colspan="6" class="text-center">No upcoming Bible studies scheduled.</td></tr>
+  {% endfor %}
+</tbody>
+</table>
+{% endblock %}

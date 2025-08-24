@@ -1,0 +1,29 @@
+{% extends "biblework/base.html" %}
+{% block content %}
+<h1>Sabbath School Lesson Materials</h1>
+
+<form method="post" class="mb-4">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit" class="btn btn-primary">Add Material</button>
+</form>
+
+<table class="table table-striped">
+<thead>
+  <tr><th>Title</th><th>Author</th><th>Resource Link</th><th>Notes</th><th>Actions</th></tr>
+</thead>
+<tbody>
+  {% for material in materials %}
+  <tr>
+    <td>{{ material.title }}</td>
+    <td>{{ material.author }}</td>
+    <td>{% if material.resource_link %}<a href="{{ material.resource_link }}" target="_blank" rel="noopener">Link</a>{% endif %}</td>
+    <td>{{ material.notes }}</td>
+    <td><!-- Edit/Delete buttons --></td>
+  </tr>
+  {% empty %}
+  <tr><td colspan="5" class="text-center">No materials available.</td></tr>
+  {% endfor %}
+</tbody>
+</table>
+{% endblock %}

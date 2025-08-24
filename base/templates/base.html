@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{% block title %}My Django App{% endblock %}</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+    <style>
+      body {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: row;
+      }
+      #sidebar {
+        width: 250px;
+        height: 100vh;
+        position: fixed;
+        background-color: #0d6efd; /* Bootstrap primary */
+        color: white;
+        padding-top: 1rem;
+      }
+      #sidebar a {
+        color: white;
+        padding: 0.75rem 1.5rem;
+        display: block;
+        text-decoration: none;
+      }
+      #sidebar a.active, 
+      #sidebar a:hover {
+        background-color: #0b5ed7;
+        text-decoration: none;
+      }
+      #content {
+        margin-left: 250px;
+        padding: 2rem;
+        flex-grow: 1;
+      }
+    </style>
+
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <nav id="sidebar" aria-label="Sidebar Navigation">
+    <h3 class="text-center">Dashboard</h3>
+    <a href="/" class="{% if request.path == '/' %}active{% endif %}">🏠 Home</a>
+
+    <a href="{% url 'bibelwork_home' %}" class="{% if request.path == '/biblework/home/' %}active{% endif %}">📅 Bible Work</a>
+    <a href="/" class="{% if request.path == '/' %}active{% endif %}">🩺 Medical Missionary</a>
+    <a href="{% url 'survey_list' %}">📊 Surveys & Feedback</a>
+
+    <a href="#" class="">⚙️ Settings</a>
+  </nav>
+
+  <!-- Main content -->
+  <main id="content">
+    {% block content %}
+    <!-- Page-specific content goes here -->
+    {% endblock %}
+  </main>
+
+  <!-- Bootstrap JS Bundle -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

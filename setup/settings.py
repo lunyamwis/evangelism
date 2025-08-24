@@ -39,7 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'medicalmissionary',
     'biblework',
-    'survey'
+    'survey',
+    'base'
 ]
 
 MIDDLEWARE = [

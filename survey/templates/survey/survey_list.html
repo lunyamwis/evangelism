@@ -1,0 +1,12 @@
+{% extends "survey/base.html" %}
+{% block content %}
+<h1>Surveys</h1>
+<a href="{% url 'survey_create' %}" class="btn btn-primary mb-3">Create New Survey</a>
+<ul>
+  {% for survey in surveys %}
+  <li><a href="{% url 'survey_detail' survey.id %}">{{ survey.title }}</a></li>
+  {% empty %}
+  <li>No surveys found.</li>
+  {% endfor %}
+</ul>
+{% endblock %}
