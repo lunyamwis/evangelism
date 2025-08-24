@@ -1,0 +1,18 @@
+{% extends "nurture/base.html" %}
+{% block content %}
+<h1>Church Members (Followers)</h1>
+
+<form method="post" class="mb-4">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit" class="btn btn-primary">Add New Church Member</button>
+</form>
+
+<ul>
+  {% for member in members %}
+    <li>{{ member.full_name }} - {{ member.contact_info }}</li>
+  {% empty %}
+    <li>No church members found.</li>
+  {% endfor %}
+</ul>
+{% endblock %}

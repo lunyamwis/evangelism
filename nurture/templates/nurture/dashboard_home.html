@@ -1,0 +1,10 @@
+{% extends "nurture/base.html" %}
+
+{% block content %}
+<h1>Nurture Dashboard</h1>
+<p>Welcome to the Nurture Dashboard. Use the links on the left to navigate.</p>
+<ul class="list-group">
+  <li class="list-group-item"><a href="{% url 'church_member_list' %}">🙏 Church Members (Followers)</a></li>
+  <li class="list-group-item"><a href="{% url 'baptized_member_list' %}">💧 Baptized Members</a></li>
+</ul>
+{% endblock %}

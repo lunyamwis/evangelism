@@ -22,5 +22,6 @@ urlpatterns = [
     path('', include('medicalmissionary.urls')),
     path('biblework/', include('biblework.urls')),
     path('survey/', include('survey.urls')),
+    path('nurture/', include('nurture.urls')),
 
 ]

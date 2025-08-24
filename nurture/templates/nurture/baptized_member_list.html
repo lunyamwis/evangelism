@@ -1,0 +1,29 @@
+{% extends "nurture/base.html" %}
+{% block content %}
+<h1>Baptized Members</h1>
+
+<form method="post" class="mb-4">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit" class="btn btn-primary">Add New Baptized Member</button>
+</form>
+
+<table class="table table-striped">
+<thead>
+  <tr><th>Name</th><th>Baptism Date</th><th>Origin</th><th>Assigned Follower</th><th>Contact</th><th>Actions</th></tr>
+</thead>
+<tbody>
+  {% for member in members %}
+  <tr>
+    <td>{{ member.full_name }}</td>
+    <td>{{ member.baptism_date }}</td>
+    <td>{{ member.get_originating_outreach_display }}</td>
+    <td>{{ member.contact_info }}</td>
+    <td><a href="{% url 'followup_list' member.id %}" class="btn btn-sm btn-info">Follow-ups</a></td>
+  </tr>
+  {% empty %}
+  <tr><td colspan="6" class="text-center">No baptized members added yet.</td></tr>
+  {% endfor %}
+</tbody>
+</table>
+{% endblock %}

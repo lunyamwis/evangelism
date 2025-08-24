@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'medicalmissionary',
     'biblework',
     'survey',
+    'nurture',
     'base'
 ]
 

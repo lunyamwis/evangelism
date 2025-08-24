@@ -49,8 +49,9 @@
     <h3 class="text-center">Dashboard</h3>
     <a href="/" class="{% if request.path == '/' %}active{% endif %}">🏠 Home</a>
 
-    <a href="{% url 'bibelwork_home' %}" class="{% if request.path == '/biblework/home/' %}active{% endif %}">📅 Bible Work</a>
+    <a href="{% url 'biblework_home' %}" class="{% if request.path == '/biblework/home/' %}active{% endif %}">📅 Bible Work</a>
     <a href="/" class="{% if request.path == '/' %}active{% endif %}">🩺 Medical Missionary</a>
+    <a href="{% url 'nurture_dashboard' %}" class="{% if request.path == '/nurture/church_members/' %}active{% endif %}">🙏 Nurture & Retention</a>
     <a href="{% url 'survey_list' %}">📊 Surveys & Feedback</a>
 
     <a href="#" class="">⚙️ Settings</a>
